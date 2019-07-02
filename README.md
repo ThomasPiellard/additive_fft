@@ -11,7 +11,7 @@ There is also an algorithm to compute irreducible polynomials of degree charac^n
 
 ## Usage
 
-* For the moment the characteristic 2 is not supported *.
+*For the moment the characteristic 2 is not supported*.
 
 Example:
 ```bash
@@ -30,5 +30,5 @@ res_fft = additive_fft(f, basis[:5], field)
 res_naive = naive_evaluation(f, basis[:5], 3)
 ```
 
-The reference that I used is this paper:  <a href="https://core.ac.uk/download/pdf/82655328.pdf"></a>
+The reference that I used is this [paper](https://core.ac.uk/download/pdf/82655328.pdf)
 
