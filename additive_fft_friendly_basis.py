@@ -138,40 +138,30 @@ def additive_fft(f, basis, field):
         a list of containing the evaluation of f
     '''
     charac = field.characteristic()
-
-    R.<u,v> = PolynomialRing(field, 2, order = 'lex')
-    d = f.dict()
-    _f = 0
-    for k in d.keys():
-        _f += d[k]*u**k
-    q = u**charac - u - v
-
+    R.<x> = PolynomialRing(field)
+    q = x**charac - x
     t = time.time()
+
     def rec_additive_fft(_f, basis):
+       
         res = [0]*charac**len(basis) 
+       
         if len(basis)==1: # this depends on q
-            return [_f(i*basis[0], 0) for i in range(charac)] 
+            return [_f(i*basis[0]) for i in range(charac)] 
             
         else:
-            extracted_poly = [R(0)]*charac
-            residue = _f.reduce(Ideal([q]))
-            d = residue.dict()
-            for k in d.keys():
-                extracted_poly[k[0]]+=d[k]*u**k[1]
+            extracted_poly = extract_poly(_f, q, x)
             _int_res = [rec_additive_fft(poly, basis[:-1]) for poly in extracted_poly]
             
             # for each element in Im(q) 
             for i in range(charac**(len(basis)-1)):
+              
                 tmp = i 
-                dec = []
+                b = field(0) 
                 for j in range(len(basis)-1):
-                    dec += [tmp%charac]
-                    tmp = (tmp - tmp%charac)/charac
-                
-                b = field(0)
-                for j in range(len(basis)-1):
-                    b += dec[j]*basis[j+1]
-
+                    b += (tmp%charac)*basis[j+1]
+                    tmp = tmp //charac
+               
                 tmp = charac*i 
 
                 # for each x in preimage of i 
@@ -188,7 +178,7 @@ def additive_fft(f, basis, field):
                     
             return res
     
-    res = rec_additive_fft(_f, basis)
+    res = rec_additive_fft(f, basis)
 
     t = time.time() - t
     print('elapsed time: {}'.format(t))
@@ -281,6 +271,20 @@ def add_fft(f, basis, field):
 
 ''' utils functions '''
 
+def extract_poly(f, s, x):
+    '''
+    brief
+        compute f % (s - v)
+    '''
+    t = [0*x] * s.degree()
+    for i in range(f.degree()//s.degree() + 1):
+        r = f % s
+        d = r.dict()
+        for k in d.keys():
+            t[k] += d[k]*x**i
+        f = f//s
+    return t
+
 def total_elts(basis, charac):
     '''
     brief
@@ -329,7 +333,9 @@ def _binomial(a, b, m, charac):
     else:
         tmp = 1
         for i in range(m):
-            tmp *= binomial(a%charac, b%charac)
+            tmp *= binomial(a%charac, b%charac)%3
+            if tmp==0 or b==0:
+                break
             a = (a - a%charac)/charac
             b = (b - b%charac)/charac
         return tmp%charac

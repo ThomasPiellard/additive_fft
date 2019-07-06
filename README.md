@@ -24,10 +24,12 @@ f = 0
 for i in range(3**5):
     f += (i%3)*x**i
 
-// evaluate the polynomial on basis[:5] (3**5 elements)
-res_fft = additive_fft(f, basis[:5], field)
+// evaluate the polynomial on basis[:8] (3**8 elements)
+t = additive_fft(f, basis[:8], field)
+elapsed time: 4.93681716919
 
-res_naive = naive_evaluation(f, basis[:5], 3)
+naive_evaluation(f, basis[:8], 3)
+elapsed time: 113.064409018
 ```
 
 The reference that I used is this [paper](https://core.ac.uk/download/pdf/82655328.pdf)
